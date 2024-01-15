@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>src/snr.html</file>
+        <file>src/echarts.min.js</file>
+        <file>src/locate.html</file>
+        <file>src/bootstrap.min.css</file>
+        <file>src/jquery.min.js</file>
+        <file>src/bootstrap.min.js</file>
+    </qresource>
+</RCC>
