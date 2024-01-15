@@ -14,7 +14,7 @@ SignaltoNoiseRatio::SignaltoNoiseRatio(QWidget *parent) :
     qDebug()<<"SignaltoNoiseRatio 已加载";
     QVBoxLayout* layout = new QVBoxLayout(this);
     qputenv("QTWEBENGINE_REMOTE_DEBUGGING", "9901");
-    webView->setUrl(QUrl("qrc:/src/snr.html"));
+    webView->setUrl(QUrl("qrc:/resource/snr.html"));
     webView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     webView->settings()->setAttribute(QWebEngineSettings::ShowScrollBars, false);
     webView->setContextMenuPolicy(Qt::NoContextMenu);
