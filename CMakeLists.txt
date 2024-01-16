@@ -24,43 +24,33 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #    endif()
 #endif()
 
+INCLUDE_DIRECTORIES(
+    "${PROJECT_SOURCE_DIR}/src/gps_module_config/"
+    "${PROJECT_SOURCE_DIR}/src/gnss_parser/"
+    "${PROJECT_SOURCE_DIR}/src/locate_infomation/"
+    "${PROJECT_SOURCE_DIR}/src/main_window/"
+    "${PROJECT_SOURCE_DIR}/src/signal_to_noise_ratio/"
+    "${PROJECT_SOURCE_DIR}/src/tool/"
+)
+
+# file(GLOB xx "*.cpp")
 find_package(Qt5 COMPONENTS Widgets REQUIRED SerialPort     )
 
 if(ANDROID)
   add_library(GNSSTuner SHARED
-      signaltonoiseratio.cpp
-            gnssparser.cpp
-            locateinformation.cpp
-            tool.h
-            tool.cpp
-            main.cpp
-            mainwindow.cpp
-            signaltonoiseratio.h
-            gnssparser.h
-            locateinformation.h
-            mainwindow.h
-            signaltonoiseratio.ui
-            resources.qrc
-            locateinformation.ui
-            mainwindow.ui
   )
 else()
   add_executable(GNSSTuner
-      signaltonoiseratio.cpp
-            gnssparser.cpp
-            locateinformation.cpp
-            main.cpp
-            mainwindow.cpp
-            tool.h
-            tool.cpp
-            signaltonoiseratio.h
-            gnssparser.h
-            locateinformation.h
-            mainwindow.h
-            signaltonoiseratio.ui
             resources.qrc
-            locateinformation.ui
-            mainwindow.ui
+            main.cpp
+            src/gps_module_config/gpsmoduleconfig.cpp src/gps_module_config/gpsmoduleconfig.h src/gps_module_config/gpsmoduleconfig.ui
+            src/gnss_parser/gnssparser.cpp src/gnss_parser/gnssparser.h
+            src/locate_infomation/locateinformation.cpp src/locate_infomation/locateinformation.h src/locate_infomation/locateinformation.ui
+            src/main_window/mainwindow.cpp src/main_window/mainwindow.h src/main_window/mainwindow.ui
+            src/signal_to_noise_ratio/signaltonoiseratio.cpp src/signal_to_noise_ratio/signaltonoiseratio.h src/signal_to_noise_ratio/signaltonoiseratio.ui
+            src/tool/tool.cpp src/tool/tool.h
+
+
   )
 endif()
 find_package(Qt5 COMPONENTS WebEngineWidgets REQUIRED)

@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LocateInformation</class>
- <widget class="QDialog" name="LocateInformation">
+ <class>GpsModuleConfig</class>
+ <widget class="QDialog" name="GpsModuleConfig">
   <property name="geometry">
    <rect>
     <x>0</x>
