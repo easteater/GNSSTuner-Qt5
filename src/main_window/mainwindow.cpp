@@ -48,6 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
     locateInformation.show();
     locateInformation.setWindowFlags(Qt::WindowStaysOnTopHint);
 
+    //把串口指针直接传递给设置模块
+    gpsModuleConfig.serialPort = this->serialPort;
+
 
 
 }
