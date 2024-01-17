@@ -9,6 +9,10 @@
 
 
 
+/**
+ * @brief MainWindow::MainWindow
+ * @param parent
+ */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -49,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
     signaltoNoiseRatio.setWindowFlags(Qt::WindowStaysOnTopHint);
     locateInformation.show();
     locateInformation.setWindowFlags(Qt::WindowStaysOnTopHint);
+    gpsModuleConfig.show();
+    gpsModuleConfig.setWindowFlags(Qt::WindowStaysOnTopHint);
 
     //把串口指针直接传递给设置模块
     gpsModuleConfig.serialPort = this->serialPort;
@@ -61,12 +67,19 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+
+
 void MainWindow::log(QString logInfo)
 {
 
     ui->logTxtBox->appendPlainText(tool.getCurrentDateTime()  + logInfo);
 }
 
+
+/**
+ * @brief MainWindow::refreshSerialPort refresh serial port 自动刷新串口列表
+ */
 void MainWindow::refreshSerialPort()
 {
 
@@ -75,7 +88,7 @@ void MainWindow::refreshSerialPort()
     //串口列表没有发生更新
     if (lastPortList.size() == ports.size()) {
         qDebug()<<"端口数量一致,跳过更新";
-        //检查一下端口状态如果非人为关闭了,需要打开
+        //auto open  检查一下端口状态如果非人为关闭了,需要打开
         if(userPortAction && !serialPort->isOpen()) {
             openSerialPort();
         }
@@ -110,9 +123,6 @@ void MainWindow::refreshSerialPort()
 
 }
 
-void MainWindow::reConnectserialPort() {
-     on_openSerialPortButton_clicked();
-}
 
 //串口空闲中断
 void MainWindow::serialPortIdleInterrupt() {
@@ -142,9 +152,32 @@ void MainWindow::parseSerialPortData() {
        // 删除已提取的数据及结束标记
        recvBuffer.remove(0, endIndex + 2);
        endIndex = recvBuffer.indexOf("\r\n");
+        //增加时间戳
+       if (addTimePrefix) {
+           completeData = "["+tool.getCurrentDateTime()+"]"+completeData;
+       }
 
        serialPortRecvTextBoxLastSliderPostion =  ui->serialPortRecvTextBox->verticalScrollBar()->sliderPosition();
        ui->serialPortRecvTextBox->appendPlainText(completeData);
+       //收到数据, 绿框提示用户 以免同文本假死不知
+       ui->serialPortRecvTextBox->setStyleSheet("border: 5px solid green");
+       QTimer::singleShot(100, this, [this]() {
+           QTimer::singleShot(100, this, [this]() {
+               // 在这里添加你想要执行的代码，比如设置绿色边框
+               ui->serialPortRecvTextBox->setStyleSheet("border: 3px solid green");
+               QTimer::singleShot(100, this, [this]() {
+                   // 在这里添加你想要执行的代码，比如设置绿色边框
+                   ui->serialPortRecvTextBox->setStyleSheet("border: 1px solid green");
+                   QTimer::singleShot(100, this, [this]() {
+                       // 在这里添加你想要执行的代码，比如设置绿色边框
+                       ui->serialPortRecvTextBox->setStyleSheet("border: 0px");
+                   });
+               });
+           });
+       });
+
+
+        //自动滚动
        if (ui->authScrollCheckBox->isChecked()) {
           ui->serialPortRecvTextBox->moveCursor(QTextCursor::End);
        }
@@ -184,7 +217,7 @@ void  MainWindow::refreshViewLocate() {
     signalRunJsString = signalRunJsString.replace("{altitude}", emptyStringToJsEmptyString(gnssParser.getGNSSRuntimeData().gga.altitude));
 
     //qDebug()<<"RunJS:"<<signalRunJsString<<endl;
-    log("RunJS" + signalRunJsString);
+    // log("RunJS" + signalRunJsString);
     locateInformation.webView->page()->runJavaScript(signalRunJsString);
 
 
@@ -230,7 +263,7 @@ void  MainWindow::refreshViewGSV() {
     signalRunJsString = signalRunJsString.replace("${isAlready}",readyListString);
     //qDebug()<<"RunJS:"<<signalRunJsString<<endl;
 
-    log("RunJS" + signalRunJsString);
+    // log("RunJS" + signalRunJsString);
 
     signaltoNoiseRatio.webView->page()->runJavaScript(signalRunJsString);
 }
@@ -253,39 +286,7 @@ void MainWindow::on_commandLinkButton_clicked()
 }
 
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    if (!serialPort->isOpen()) {
-       qDebug() <<ui->serialPortComboBox->currentText() << " is Not Open";
-    }
-    on_openSerialPortButton_clicked();
-    if (!serialPort->isOpen()) {
-       qDebug() <<ui->serialPortComboBox->currentText() << " is Not Open";
 
-       return;
-    }
-
-    serialPort->write(ui->serialPortSendTextBox->toPlainText().toLatin1());
-
-}
-
-
-
-void MainWindow::on_pushButton_clicked()
-{
-
-    gnssParser.clearBuffer();
-    gnssParser.parseNMea0180Txt("$GNGSA,A,3,03,09,16,24,28,38,39,,,,,,2.5,0.9,2.3,4*3B");
-    gnssParser.parseNMea0180Txt("$GPGSV,2,1,08,05,36,097,27,13,40,044,24,15,,,22,18,,,31,0*6A");
-    gnssParser.parseNMea0180Txt("$GPGSV,2,2,08,23,34,309,23,24,49,173,31,195,33,174,28,199,,,25,0*5F");
-    gnssParser.parseNMea0180Txt("$BDGSV,3,1,10,01,,,32,02,,,31,03,49,197,37,09,31,208,40,0*77");
-    gnssParser.parseNMea0180Txt("$BDGSV,3,2,10,16,53,203,45,24,36,115,37,28,39,258,41,38,77,092,25,0*7A");
-    gnssParser.parseNMea0180Txt("$BDGSV,3,3,10,39,61,206,42,42,,,29,0*47");
-    gnssParser.parseNMea0180Txt("$GNRMC,115612.000,A,3604.42736,N,12024.40085,E,0.00,0.00,010623,,,A,V*05");
-    refreshViewGSV();
-    refreshViewLocate();
-
-}
 
 
 void MainWindow::serialOnBreak(QSerialPort::SerialPortError error)
@@ -334,7 +335,7 @@ void MainWindow::openSerialPort(){
         qDebug() <<ui->serialPortComboBox->currentText() << "Failed to open serial port.";
         return;
     }
-
+    log("串口打开成功:" + ui->serialPortComboBox->currentText() + ",  "+ ui->baudRateComboBox->currentText());
     qDebug() << ui->serialPortComboBox->currentText() << "Serial port opened successfully.";
 
     userPortAction = true;
@@ -345,6 +346,7 @@ void MainWindow::on_openSerialPortButton_clicked()
     if (ui->openSerialPortButton->text() == "打开串口") {
         openSerialPort();
     } else {
+      log("已关闭串口 ");
        qDebug() << "Port status " <<serialPort->isOpen() << "Serial port opened successfully.";
        serialPort->close();
        userPortAction = false;
@@ -383,22 +385,31 @@ void MainWindow::on_clearRecvDataButton_clicked()
 
 void MainWindow::on_saveRecvToFileButton_clicked()
 {
-    QString filePath = QFileDialog::getSaveFileName(nullptr, "保存文件", "", "GNSS调试数据 (*.txt)");
+
+    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz");
+    QString fileName = currentDateTime + ".txt";
+    QString filePath = QDir::currentPath() + "/" + fileName;
+    // Display the file dialog
+    // QString filePath = QFileDialog::getSaveFileName(nullptr, "保存文件", "", "GNSS调试数据 (*.txt)");
     if (!filePath.isEmpty()) {
-        // 创建文件对象
         QFile file(filePath);
-        qDebug()<<"保存文件:"<<filePath<<endl;
-        // 打开文件
+        qDebug() << "保存文件:" << filePath << endl;
+        // Open the file
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            // 写入内容
+            // Write content to the file
             QTextStream stream(&file);
             stream << ui->serialPortRecvTextBox->toPlainText();
-            // 关闭文件
             file.close();
+            log(filePath+"文件已保存");
+
+            if (ui->clearAfterSavedCheckBox->isChecked()) {
+                on_clearRecvDataButton_clicked();
+            }
+
         } else {
-            // 文件打开失败
-            qDebug()<<"打开文件失败,无法保存!"<<endl;
-            // 处理错误
+            // File open failed
+            log(filePath+"打开文件失败,无法保存!") ;
+            // Handle the error
         }
     }
 }
@@ -418,6 +429,27 @@ void MainWindow::on_serialPortComboBox_currentTextChanged(const QString &arg1)
     if (recordLastPort) {
         qDebug()<<"lastSelectedQSerialPort : "<<arg1;
         lastSelectedQSerialPort = arg1;
+        //用户已经打开而且用户手动切换时,自动打开
+        if (userPortAction) {
+            on_openSerialPortButton_clicked();
+            on_openSerialPortButton_clicked();
+        }
+    }
+}
+
+
+void MainWindow::on_addTimePrefixcheckBox_stateChanged(int arg1)
+{
+    addTimePrefix = arg1 > 0;
+}
+
+
+void MainWindow::on_baudRateComboBox_currentIndexChanged(int index)
+{
+    if (recordLastPort && userPortAction) {
+        //用户已经打开而且用户手动切换时,自动切换波特率
+            on_openSerialPortButton_clicked();
+            on_openSerialPortButton_clicked();
     }
 }
 

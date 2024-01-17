@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>6</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="page">
     <property name="geometry">
@@ -511,14 +511,14 @@
     <widget class="QLabel" name="label_4">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>100</y>
-       <width>541</width>
-       <height>141</height>
+       <x>30</x>
+       <y>60</y>
+       <width>531</width>
+       <height>171</height>
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;请至少保证有一个是勾选状态,全不选会开启所有&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;请至少保证有一个是勾选状态,全不选会开启所有.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#d00f1b;&quot;&gt;注意&lt;/span&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;,并非多星定位就一定比单星定位好.如果明确哪个系统信号强时,单星定位要比多星要快,要精准哟&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;如果模块使用的场景并&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#b50008;&quot;&gt;不能确定位置时使用多星则更好,返之单星更好&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;用户反馈 同条件下单星gps比多星快20秒以上.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

@@ -10,13 +10,9 @@
 #include "gnssparser.h"
 #include "tool.h"
 #include "gpsmoduleconfig.h"
+#include "serial.h"
 
-#if defined(Q_OS_WIN) // Windows
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
-#elif defined(Q_OS_MAC) // macOS
-#include <QtSerialPort>
-#endif
+
 
 /**
 
@@ -41,11 +37,8 @@ public:
 private slots:
     void refreshSerialPort();
     void log(QString logInfo);
-    void reConnectserialPort();
     void on_commandLinkButton_clicked();
     void serialPortRecvDataCallback();
-    void on_pushButton_2_clicked();
-    void on_pushButton_clicked();
     void serialOnBreak(QSerialPort::SerialPortError error);
     void on_openSerialPortButton_clicked();
     void on_showSNR_stateChanged(int arg1);
@@ -64,7 +57,12 @@ private slots:
 
     void on_serialPortComboBox_currentTextChanged(const QString &arg1);
     void openSerialPort();
+    void on_addTimePrefixcheckBox_stateChanged(int arg1);
+
+    void on_baudRateComboBox_currentIndexChanged(int index);
+
 private:
+    bool addTimePrefix = false;
     Ui::MainWindow *ui;
     QTimer *refreshSerialPortTimer ;
     QTimer *reConnectserialPortTimer ;

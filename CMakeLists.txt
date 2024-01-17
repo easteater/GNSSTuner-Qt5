@@ -31,6 +31,7 @@ INCLUDE_DIRECTORIES(
     "${PROJECT_SOURCE_DIR}/src/main_window/"
     "${PROJECT_SOURCE_DIR}/src/signal_to_noise_ratio/"
     "${PROJECT_SOURCE_DIR}/src/tool/"
+    "${PROJECT_SOURCE_DIR}/src/serial/"
 )
 
 # file(GLOB xx "*.cpp")
