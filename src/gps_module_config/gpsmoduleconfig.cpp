@@ -35,8 +35,9 @@ QString GpsModuleConfig::sendCommand(QString cmd ) {
     ui->lastCmdText->setText(cmd);
 
     if (serialPort && serialPort->isOpen()) {
-        serialPort->write(cmd.toUtf8()); // Send the command over the serial port
+        serialPort->write(cmd.toUtf8() + "\r\n"); // Send the command over the serial port
         serialPort->waitForBytesWritten(); // Wait for the write operation to complete
+        qDebug()<<"成功写入串口";
     } else {
         qDebug()<<"串口未就绪";
     }

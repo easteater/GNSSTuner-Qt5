@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
     refreshSerialPortTimer = new QTimer(this);
-    reConnectserialPortTimer = new QTimer(this);
+    //reConnectserialPortTimer = new QTimer(this);
     //parseSerialPortDataTimer = new QTimer(this);
     serialPortIdleInterruptTimer= new QTimer(this);
 
@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     connect(refreshSerialPortTimer, &QTimer::timeout, this, &MainWindow::refreshSerialPort);
-    connect(reConnectserialPortTimer, &QTimer::timeout, this, &MainWindow::reConnectserialPort);
+    //connect(reConnectserialPortTimer, &QTimer::timeout, this, &MainWindow::reConnectserialPort);
     //connect(parseSerialPortDataTimer, &QTimer::timeout, this, &MainWindow::parseSerialPortData);
     connect(serialPortIdleInterruptTimer, &QTimer::timeout, this, &MainWindow::serialPortIdleInterrupt);
 
@@ -36,11 +36,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->serialPortRecvTextBox->setLineWrapMode(QPlainTextEdit::NoWrap);
 
     refreshSerialPortTimer->setInterval(1000);
-    reConnectserialPortTimer->setInterval(500);
+    refreshSerialPortTimer->start();
+
+    //reConnectserialPortTimer->setInterval(500);
     //parseSerialPortDataTimer->setInterval(100);
     serialPortIdleInterruptTimer->setInterval(100);//空闲时间,自由设置
     // 列出一次串口列表
-    refreshSerialPort();
+  //  refreshSerialPort();
 
 
     signaltoNoiseRatio.show();
@@ -67,14 +69,45 @@ void MainWindow::log(QString logInfo)
 
 void MainWindow::refreshSerialPort()
 {
-    // 清空QComboBox的内容
-    ui->serialPortComboBox->clear();
+
     // 获取最新的串口列表
-   QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
+    QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
+    //串口列表没有发生更新
+    if (lastPortList.size() == ports.size()) {
+        qDebug()<<"端口数量一致,跳过更新";
+        //检查一下端口状态如果非人为关闭了,需要打开
+        if(userPortAction && !serialPort->isOpen()) {
+            openSerialPort();
+        }
+
+        return;
+    }
+
+    qDebug()<<"端口发现更新" << lastPortList.size()<<"<>" <<ports.size();
+
+    recordLastPort= false;
+    // 清空QComboBox的内容 注意会触发lastPort的更新
+    ui->serialPortComboBox->clear();
+
     // 将串口列表添加到QComboBox中
     for (const QSerialPortInfo &portInfo : ports) {
        ui->serialPortComboBox->addItem(portInfo.portName());
     }
+    lastPortList = ports;
+    recordLastPort = true;
+     //最后一次选择的端口 选中这个默认
+    if ("" != lastSelectedQSerialPort) {
+        int index = ui->serialPortComboBox->findText(lastSelectedQSerialPort);
+        qDebug()<<"lastSelectedQSerialPort 查询结果"<<index;
+        if (index != -1) {
+            ui->serialPortComboBox->setCurrentIndex(index);
+            //如果用户手动打开,未关闭,则自动打开
+            if(userPortAction && !serialPort->isOpen()) {
+                openSerialPort();
+            }
+        }
+    }
+
 }
 
 void MainWindow::reConnectserialPort() {
@@ -83,7 +116,7 @@ void MainWindow::reConnectserialPort() {
 
 //串口空闲中断
 void MainWindow::serialPortIdleInterrupt() {
-    qDebug()<<"serialPortIdleInterruptserialPortIdleInterruptserialPortIdleInterruptserialPortIdleInterruptserialPortIdleInterrupt"<<endl;
+    //qDebug()<<"serialPortIdleInterruptserialPortIdleInterruptserialPortIdleInterruptserialPortIdleInterruptserialPortIdleInterrupt"<<endl;
     serialPortIdleInterruptTimer->stop();//请掉,避免反复触发
     parseSerialPortData() ;//解析
 }
@@ -150,7 +183,7 @@ void  MainWindow::refreshViewLocate() {
     signalRunJsString = signalRunJsString.replace("{speed}", emptyStringToJsEmptyString(rmc.groundSpeed ));
     signalRunJsString = signalRunJsString.replace("{altitude}", emptyStringToJsEmptyString(gnssParser.getGNSSRuntimeData().gga.altitude));
 
-    qDebug()<<"RunJS:"<<signalRunJsString<<endl;
+    //qDebug()<<"RunJS:"<<signalRunJsString<<endl;
     log("RunJS" + signalRunJsString);
     locateInformation.webView->page()->runJavaScript(signalRunJsString);
 
@@ -195,7 +228,7 @@ void  MainWindow::refreshViewGSV() {
     signalRunJsString = signalRunJsString.replace("${seriesData}",seriesDataString);
     signalRunJsString = signalRunJsString.replace("${xAxisData}",xAxisDataString);
     signalRunJsString = signalRunJsString.replace("${isAlready}",readyListString);
-    qDebug()<<"RunJS:"<<signalRunJsString<<endl;
+    //qDebug()<<"RunJS:"<<signalRunJsString<<endl;
 
     log("RunJS" + signalRunJsString);
 
@@ -209,8 +242,8 @@ void MainWindow::serialPortRecvDataCallback() {
     serialPortIdleInterruptTimer->stop();
     serialPortIdleInterruptTimer->start();
 
-  qDebug() << "recvBuffer len  " << recvBuffer.size() <<recvBuffer;
-   qDebug() << "bufferList len " << bufferList.size();
+   //qDebug() << "recvBuffer len  " << recvBuffer.size() <<recvBuffer;
+   //qDebug() << "bufferList len " << bufferList.size();
 
 
 }
@@ -259,10 +292,6 @@ void MainWindow::serialOnBreak(QSerialPort::SerialPortError error)
 {
     qDebug() << "serialOnBreak  " << error;
 
-    //open retry timer
-    if (!reConnectserialPortTimer->isActive()) {
-       reConnectserialPortTimer->start();
-    }
 
 
     if (error != QSerialPort::NoError) {
@@ -283,30 +312,42 @@ void MainWindow::serialOnBreak(QSerialPort::SerialPortError error)
 
 }
 
+void MainWindow::openSerialPort(){
 
+    // 设置串口名称和参数
+    serialPort->setPortName(ui->serialPortComboBox->currentText());
+    // serialPort->setBaudRate(QSerialPort::Baud9600);
+    // serialPort->setDataBits(QSerialPort::Data8);
+    // serialPort->setParity(QSerialPort::NoParity);
+    // serialPort->setStopBits(QSerialPort::OneStop);
+
+
+    // 从控件中读取串口参数并设置到 QSerialPort
+    serialPort->setBaudRate(static_cast<QSerialPort::BaudRate>(ui->baudRateComboBox->currentText().toInt()));
+    serialPort->setDataBits(static_cast<QSerialPort::DataBits>(ui->dataBitsComboBox->currentText().toInt()));
+    serialPort->setParity(static_cast<QSerialPort::Parity>(ui->parityComboBox->currentText().toInt()));
+    serialPort->setStopBits(static_cast<QSerialPort::StopBits>(ui->stopBitsComboBox->currentText().toInt()));
+
+    serialPort->setFlowControl(QSerialPort::NoFlowControl);
+    // 打开串口
+    if(!serialPort->open(QIODevice::ReadWrite)) {
+        qDebug() <<ui->serialPortComboBox->currentText() << "Failed to open serial port.";
+        return;
+    }
+
+    qDebug() << ui->serialPortComboBox->currentText() << "Serial port opened successfully.";
+
+    userPortAction = true;
+    ui->openSerialPortButton->setText("关闭串口");
+}
 void MainWindow::on_openSerialPortButton_clicked()
 {
     if (ui->openSerialPortButton->text() == "打开串口") {
-       // 设置串口名称和参数
-       serialPort->setPortName(ui->serialPortComboBox->currentText());
-       serialPort->setBaudRate(QSerialPort::Baud9600);
-       serialPort->setDataBits(QSerialPort::Data8);
-       serialPort->setParity(QSerialPort::NoParity);
-       serialPort->setStopBits(QSerialPort::OneStop);
-       serialPort->setFlowControl(QSerialPort::NoFlowControl);
-       // 打开串口
-       if(!serialPort->open(QIODevice::ReadWrite)) {
-           qDebug() <<ui->serialPortComboBox->currentText() << "Failed to open serial port.";
-           return;
-       }
-
-       qDebug() << ui->serialPortComboBox->currentText() << "Serial port opened successfully.";
-       reConnectserialPortTimer->stop();
-
-       ui->openSerialPortButton->setText("关闭串口");
+        openSerialPort();
     } else {
        qDebug() << "Port status " <<serialPort->isOpen() << "Serial port opened successfully.";
        serialPort->close();
+       userPortAction = false;
        ui->openSerialPortButton->setText("打开串口");
 
     }
@@ -368,6 +409,15 @@ void MainWindow::on_configPanelCheckBox_stateChanged(int arg1)
         gpsModuleConfig.close();
     } else {
         gpsModuleConfig.show();
+    }
+}
+
+
+void MainWindow::on_serialPortComboBox_currentTextChanged(const QString &arg1)
+{
+    if (recordLastPort) {
+        qDebug()<<"lastSelectedQSerialPort : "<<arg1;
+        lastSelectedQSerialPort = arg1;
     }
 }
 

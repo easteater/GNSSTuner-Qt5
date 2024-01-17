@@ -63,7 +63,7 @@ GNSSParser::parseNMea0180Txt 解析一条不确定是什么类型的单条 nmea-
  * @param singleCmdTxt
  */
 bool GNSSParser::parseNMea0180Txt(const QString&  singleCmdTxt) {
-    qDebug()<< "attempting to parse :" << singleCmdTxt;
+    //qDebug()<< "attempting to parse :" << singleCmdTxt;
 
     QString orgCommand = singleCmdTxt.left(singleCmdTxt.indexOf(','));
     //Not found, does not meet the structural requirements.  没有找到,不符合结构要求
@@ -91,7 +91,7 @@ bool GNSSParser::parseNMea0180Txt(const QString&  singleCmdTxt) {
          (this->*parseFunction)(singleCmdTxt);
    }
 
-   qDebug()<<command<<"Parser, this command is currently not supported : " << singleCmdTxt;
+   //qDebug()<<command<<"Parser, this command is currently not supported : " << singleCmdTxt;
     return true;
 }
 
@@ -122,7 +122,7 @@ bool GNSSParser::parseGGA(const QString& cmdTxt)
         gnssRuntimeData.gga.differentialTime = fields.at(11);
         gnssRuntimeData.gga.differentialStationID = fields.at(12);
     } else {
-        qDebug()<< "Parsing failed.:" <<cmdTxt ;
+      //  qDebug()<< "Parsing failed.:" <<cmdTxt ;
 //        return false;
     }
     qDebug()<< "gga  Parsing complete " ;
@@ -202,7 +202,7 @@ bool GNSSParser:: parseRMC(const QString& message) {
     }
     gnssRuntimeData.rmc = rmc;
 
-    qDebug()<< "rmc ok:"  ;
+    //qDebug()<< "rmc ok:"  ;
     return true;
 }
 QString GNSSParser::getSatelliteType(const QString& prn) {
@@ -238,7 +238,7 @@ bool GNSSParser:: parseGSA(const QString& message) {
     QStringList fields = message.split(",");
     if (fields.size() < 18)
     {
-       qDebug() << "Invalid GPGSA sentence";
+       //qDebug() << "Invalid GPGSA sentence";
        return false;
     }
     GSA gsa;
@@ -251,7 +251,7 @@ bool GNSSParser:: parseGSA(const QString& message) {
 
     gnssRuntimeData.gsaMap[ fields[0]] = gsa;
 
-    qDebug()<< "gsa over"  ;
+    //qDebug()<< "gsa over"  ;
     return true;
 }
 

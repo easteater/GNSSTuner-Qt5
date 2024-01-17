@@ -62,6 +62,8 @@ private slots:
 
     void on_configPanelCheckBox_stateChanged(int arg1);
 
+    void on_serialPortComboBox_currentTextChanged(const QString &arg1);
+    void openSerialPort();
 private:
     Ui::MainWindow *ui;
     QTimer *refreshSerialPortTimer ;
@@ -80,6 +82,11 @@ private:
     GNSSParser gnssParser;;
     Tool tool;
     GpsModuleConfig gpsModuleConfig;
+
+    QList<QSerialPortInfo> lastPortList;//最次检测到的端口列表
+    QString   lastSelectedQSerialPort;//最后一次选中的端口
+    bool recordLastPort = true;//是否记录最后端口. 比如clear和添加过程时,不能去记录最后光标.只有用户手动操作时才记录
+    bool userPortAction = false;//用户是否是手动状态, 用于不小心串口断开时自动连接
 
 
 
