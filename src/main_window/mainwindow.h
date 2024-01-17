@@ -10,8 +10,12 @@
 #include "gnssparser.h"
 #include "tool.h"
 #include "gpsmoduleconfig.h"
-#include "serial.h"
-
+#if defined(Q_OS_WIN) // Windows
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
+#elif defined(Q_OS_MAC) // macOS
+#include <QtSerialPort>
+#endif
 
 
 /**
