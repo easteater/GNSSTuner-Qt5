@@ -10,6 +10,7 @@
 #include "gnssparser.h"
 #include "tool.h"
 #include "gpsmoduleconfig.h"
+#include "gnsssimulator.h"
 #if defined(Q_OS_WIN) // Windows
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
@@ -65,6 +66,9 @@ private slots:
 
     void on_baudRateComboBox_currentIndexChanged(int index);
 
+    void on_simulatorCheckbox_stateChanged(int arg1);
+    void serialPortRecvData(QString cmd);
+
 private:
     bool addTimePrefix = false;
     Ui::MainWindow *ui;
@@ -90,6 +94,7 @@ private:
     bool recordLastPort = true;//是否记录最后端口. 比如clear和添加过程时,不能去记录最后光标.只有用户手动操作时才记录
     bool userPortAction = false;//用户是否是手动状态, 用于不小心串口断开时自动连接
 
+    GnssSimulator gnssSimulator;
 
 
 };

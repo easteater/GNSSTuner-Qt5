@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
     "${PROJECT_SOURCE_DIR}/src/main_window/"
     "${PROJECT_SOURCE_DIR}/src/signal_to_noise_ratio/"
     "${PROJECT_SOURCE_DIR}/src/tool/"
-    "${PROJECT_SOURCE_DIR}/src/serial/"
+    "${PROJECT_SOURCE_DIR}/src/gnss_simulator/"
 )
 
 # file(GLOB xx "*.cpp")
@@ -50,6 +50,7 @@ else()
             src/main_window/mainwindow.cpp src/main_window/mainwindow.h src/main_window/mainwindow.ui
             src/signal_to_noise_ratio/signaltonoiseratio.cpp src/signal_to_noise_ratio/signaltonoiseratio.h src/signal_to_noise_ratio/signaltonoiseratio.ui
             src/tool/tool.cpp src/tool/tool.h
+            src/gnss_simulator/gnsssimulator.h src/gnss_simulator/gnsssimulator.cpp
 
 
   )

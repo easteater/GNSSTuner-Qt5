@@ -515,6 +515,19 @@
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QCheckBox" name="simulatorCheckbox">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>310</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>启用模拟器器</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

@@ -104,10 +104,11 @@ public:
     bool parseRMC(const QString& message) ;
     bool parseGSA(const QString& message);
     bool parseGLL(const QString& message);
-    void clearBuffer();
+    void clearGsvBuffer();
     bool isReady();
     QString getSatelliteType(const QString& prn) ;
     GNSSParser();
+    QString lastCommand;
 };
 
 

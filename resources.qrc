@@ -6,5 +6,6 @@
         <file>resource/bootstrap.min.css</file>
         <file>resource/jquery.min.js</file>
         <file>resource/bootstrap.min.js</file>
+        <file>resource/gnss.txt</file>
     </qresource>
 </RCC>

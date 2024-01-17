@@ -76,6 +76,11 @@ bool GNSSParser::parseNMea0180Txt(const QString&  singleCmdTxt) {
    }
    //$GNZDA=>ZDA
    QString command = orgCommand.right(3);
+   // Got GSV message for the first time.
+   if (lastCommand != command && command == "GSV") {
+       this->clearGsvBuffer();
+   }
+   lastCommand = command;
    // Define a function pointer type primarily to map commands to their corresponding parsing functions, allowing for finding the appropriate parser based on the command 定义函数指针类型, 主要作用是把指令和对应解析函数的映射,即通过命令找到对应的解析器
    typedef bool (GNSSParser::*ParseFunction)(const QString& );
    QMap<QString, ParseFunction> parseFunctions;
@@ -282,7 +287,7 @@ GnssRuntimeData  GNSSParser::getGNSSRuntimeData() {
     return gnssRuntimeData;
 }
 
-void GNSSParser::clearBuffer() {
+void GNSSParser::clearGsvBuffer() {
     this->gnssRuntimeData.gsv.totalUsed = 0;//可用清0
      this->gnssRuntimeData.gsv.satellites.clear();
     this->gnssRuntimeData.gsv.totalSatellites = 0;//可视清0

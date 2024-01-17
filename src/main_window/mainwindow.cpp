@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //reConnectserialPortTimer->setInterval(500);
     //parseSerialPortDataTimer->setInterval(100);
-    serialPortIdleInterruptTimer->setInterval(100);//空闲时间,自由设置
+    serialPortIdleInterruptTimer->setInterval(50);//空闲时间,自由设置
     // 列出一次串口列表
   //  refreshSerialPort();
 
@@ -142,7 +142,6 @@ void MainWindow::parseSerialPortData() {
 
 
     // 清掉上次数据
-    gnssParser.clearBuffer();
     int endIndex = recvBuffer.indexOf("\r\n");
     while (endIndex != -1)
     {
@@ -267,14 +266,17 @@ void  MainWindow::refreshViewGSV() {
 
     signaltoNoiseRatio.webView->page()->runJavaScript(signalRunJsString);
 }
-
-void MainWindow::serialPortRecvDataCallback() {
-    QByteArray data = serialPort->readAll();
-    recvBuffer.append(data);
+void MainWindow::serialPortRecvData(QString cmd) {
+    //qDebug()<<"SerialPort RecvData : "<<cmd;
+    recvBuffer.append(cmd);
     //空闲中断计时器开始
     serialPortIdleInterruptTimer->stop();
     serialPortIdleInterruptTimer->start();
+}
+void MainWindow::serialPortRecvDataCallback() {
+    QByteArray data = serialPort->readAll();
 
+    serialPortRecvData(data);
    //qDebug() << "recvBuffer len  " << recvBuffer.size() <<recvBuffer;
    //qDebug() << "bufferList len " << bufferList.size();
 
@@ -450,6 +452,22 @@ void MainWindow::on_baudRateComboBox_currentIndexChanged(int index)
         //用户已经打开而且用户手动切换时,自动切换波特率
             on_openSerialPortButton_clicked();
             on_openSerialPortButton_clicked();
+    }
+}
+
+
+void MainWindow::on_simulatorCheckbox_stateChanged(int arg1)
+{
+    if (arg1 > 0) {
+        auto callbackFunction = [this](const QString &data) {
+            this->serialPortRecvData(data);
+            //qDebug() << "Received GNSS data: " << data;
+        };
+        gnssSimulator.setCallbackFunction(callbackFunction);
+        gnssSimulator.start();
+    } else {
+        gnssSimulator.stop();
+
     }
 }
 
