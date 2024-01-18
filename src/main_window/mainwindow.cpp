@@ -215,7 +215,7 @@ void  MainWindow::refreshViewLocate() {
     signalRunJsString = signalRunJsString.replace("{speed}", emptyStringToJsEmptyString(rmc.groundSpeed ));
     signalRunJsString = signalRunJsString.replace("{altitude}", emptyStringToJsEmptyString(gnssParser.getGNSSRuntimeData().gga.altitude));
 
-    //qDebug()<<"RunJS:"<<signalRunJsString<<endl;
+    qDebug()<<"RunJS:"<<signalRunJsString<<endl;
     // log("RunJS" + signalRunJsString);
     locateInformation.webView->page()->runJavaScript(signalRunJsString);
 

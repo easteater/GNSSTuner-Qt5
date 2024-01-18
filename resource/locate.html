@@ -22,7 +22,7 @@
 
         th, td {
             padding: 2px;
-            text-align: right;
+            text-align: left !important;
             border-bottom: 1px solid #ddd;
             font-size: 12px;
         }
@@ -70,7 +70,7 @@
                     <td><label class="font-weight-bold">纬度：</label></td>
                     <td><input class="font-weight-bold" id="latitude" readonly></td>
                     <td>
-   
+
                     </td>
                 </tr>
                 <tr>
@@ -178,9 +178,15 @@
     /**
      time1-time2 = x ms
      */
-    function getTimeDiff(time1, time2) {
-        //return (new Date(time1) - new Date(time2)) / 1000;
-        return 0;
+     function getTimeDiff(time1, time2) {
+         return (new Date(time1) - new Date(time2)) / 1000;
+         return 0;
+     }
+    /**
+            2023-12-12 12:12:12.567=>12:12:12.566
+    */
+    function ymdhmsTohms(time) {
+        return time.split(' ')[1];
     }
 
     function updateInfo(latitude, longitude, altitude, utcDate, utcTime, speed, isAlready, setOnline = true) {
@@ -195,17 +201,17 @@
 
         if (oldInfo.utcTime == "" && utcTime != "") {
             getTimeAt = getCurrentDateTime();
-            $(".timeGetTime").html(getTimeAt + "," + getTimeDiff(getTimeAt, onlineTime) + "秒");
+            $(".timeGetTime").html("["+ymdhmsTohms(getTimeAt) + "]" + getTimeDiff(getTimeAt, onlineTime) + "秒");
         }
 
         if (oldInfo.utcDate == "" && utcDate != "") {
             getDateAt = getCurrentDateTime()
-            $(".dateGetTime").html(getDateAt + "," + getTimeDiff(getDateAt, onlineTime) + "秒" + "," + getTimeDiff(getDateAt, getTimeAt) + "秒");//
+            $(".dateGetTime").html("["+ymdhmsTohms(getDateAt) + "]" + getTimeDiff(getDateAt, onlineTime) + "秒" + "," + getTimeDiff(getDateAt, getTimeAt) + "秒");//
         }
 
         if (!oldInfo.isAlready && isAlready) {
             successfulAt = getCurrentDateTime();
-            $(".successfulTime").html(successfulAt + "," + getTimeDiff(successfulAt, onlineTime) + "秒,"
+            $(".successfulTime").html("["+ymdhmsTohms(successfulAt) + "]" + getTimeDiff(successfulAt, onlineTime) + "秒,"
                 + getTimeDiff(successfulAt, getTimeAt) + "秒,"
             + getTimeDiff(successfulAt, getDateAt) + "秒")         ;
         }

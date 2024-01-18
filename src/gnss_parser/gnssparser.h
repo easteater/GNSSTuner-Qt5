@@ -93,7 +93,7 @@ class GNSSParser
 {
 private:
     GnssRuntimeData gnssRuntimeData;
-    bool ready;
+    bool ready =false;
     QList<QString> cmdOrderList;
     Tool tool;
 public:
